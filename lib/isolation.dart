@@ -3,5 +3,4 @@
 /// More dartdocs go here.
 library isolation;
 
-export 'src/isolation.dart';
-//export 'src/develop.dart';
+export 'package:isolation/src/connection.dart';
