@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 void main() {
   group('unit', () {
     test('placeholder', () {
-      final connection = Connection.create<int, int, int>(_dublicate, 10);
+      final connection = Connection.create(_dublicate, 10);
       expect(connection, isA<Connection>());
       expect(() => connection.add(1), returnsNormally);
       expect(() => connection.addError(Exception()), returnsNormally);
@@ -14,18 +14,18 @@ void main() {
     });
 
     test('dublicate', () {
-      final connection = Connection.create<int, int, int>(_dublicate, 10);
+      final connection = Connection.create(_dublicate, 10);
       expectLater(
         connection.stream,
         emitsInOrder(
           <Object?>[
-            100,
-            0,
-            0,
-            2,
-            2,
-            4,
-            4,
+            ' * 100',
+            ' * 0',
+            ' * 0',
+            ' * 2',
+            ' * 2',
+            ' * 4',
+            ' * 4',
             emitsDone,
           ],
         ),
@@ -34,16 +34,16 @@ void main() {
         ..add(0)
         ..add(1)
         ..add(2);
-      Future.delayed(const Duration(seconds: 1), connection.close);
+      Future<void>.delayed(const Duration(milliseconds: 150), connection.close);
     });
   });
 }
 
-void _dublicate(Connection<int, int> connection, int value) {
-  connection.add(value * 10);
-  connection.stream.listen((event) {
-    connection
-      ..add(event * 2)
-      ..add(event * 2);
-  });
+void _dublicate(Connection<String, int> connection, int value) {
+  connection.add(' * ${value * 10}');
+  connection.stream
+      .map<int>((event) => event * 2)
+      .map<String>((event) => ' * $event')
+    ..listen(connection.add)
+    ..listen(connection.add);
 }

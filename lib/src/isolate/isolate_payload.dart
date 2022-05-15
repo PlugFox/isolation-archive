@@ -57,6 +57,7 @@ class IsolatePayload<Send extends Object?, Receive extends Object?,
             ..setPort(servicePort),
     );
     await connection.initConnection();
+    // Workaround to save types between isolates:
     entryPoint(connection, argument);
     return connection;
   }
