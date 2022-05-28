@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:isolation/src/connection_status.dart';
+import 'package:isolation/src/develop.dart';
 import 'package:meta/meta.dart';
 
 /// [ConnectionStatus] owner
@@ -19,16 +20,25 @@ mixin ConnectionStatusOwner {
     switch (newStatus) {
       case ConnectionStatus.established:
         _initilizationCompleter.complete();
+        info('Establish connection');
         break;
       case ConnectionStatus.error:
         _initilizationCompleter.completeError(
           StateError('Error occurred while establishing connection'),
         );
+        warning('Error occurred while establishing connection');
         break;
       case ConnectionStatus.initial:
+        config('Initial state');
+        break;
       case ConnectionStatus.initialization:
+        info('Starts initialization');
+        break;
       case ConnectionStatus.closing:
+        info('Closing connection');
+        break;
       case ConnectionStatus.closed:
+        info('Closed connection');
         break;
     }
   }

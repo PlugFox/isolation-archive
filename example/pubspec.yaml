@@ -1,0 +1,16 @@
+name: isolation_example
+description: >
+  Isolate helper for flutter and dart.
+version: 0.0.1-dev
+
+publish_to: none
+
+environment:
+  sdk: '>=2.17.1 <3.0.0'
+
+dependencies:
+  collection: ^1.16.0
+  equatable: ^2.0.3
+  isolation:
+    path: ../
+  meta: ^1.8.0

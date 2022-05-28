@@ -16,8 +16,9 @@ abstract class IsolateBase<Send extends Object?, Receive extends Object?>
     required this.dataChannel,
     required this.exceptionChannel,
     required this.serviceChannel,
+    required this.errorsAreFatal,
   }) : messages = serviceChannel.receivePort
-            .cast<IsolateServiceMessage>()
+            .cast<IsolateServiceMessage?>()
             .asBroadcastStream();
 
   /// Channel for data
@@ -31,9 +32,13 @@ abstract class IsolateBase<Send extends Object?, Receive extends Object?>
 
   /// Channel for service messages
   @protected
-  final IsolateChannel<IsolateServiceMessage, IsolateServiceMessage>
+  final IsolateChannel<IsolateServiceMessage?, IsolateServiceMessage?>
       serviceChannel;
 
+  @override
+  @nonVirtual
+  final bool errorsAreFatal;
+
   /// Stream of service messages
-  final Stream<IsolateServiceMessage> messages;
+  final Stream<IsolateServiceMessage?> messages;
 }

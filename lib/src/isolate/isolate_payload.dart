@@ -22,6 +22,7 @@ class IsolatePayload<Send extends Object?, Receive extends Object?,
     required this.servicePort,
     required this.entryPoint,
     required this.argument,
+    required this.errorsAreFatal,
   });
 
   /// Isolate payload data port
@@ -33,32 +34,36 @@ class IsolatePayload<Send extends Object?, Receive extends Object?,
   /// Isolate payload service port
   final SendPort servicePort;
 
+  /// Sets whether uncaught errors will terminate the isolate.
+  final bool errorsAreFatal;
+
   /// Entry point
   final EntryPoint<Receive, Send, Argument> entryPoint;
 
   /// Arguments
   final Argument argument;
 
-  // TODO: Sets whether uncaught errors will terminate the isolate.
-  // Matiunin Mikhail <plugfox@gmail.com>, 15 May 2022
-  //bool errorsAreFatal = true
-
   /// Finish slave isolate initialization
   Future<IsolateSlave<Receive, Send>> call() async {
     // Swaping receive and send generics
-    // ignore: close_sinks
-    final connection = IsolateSlave<Receive, Send>(
-      dataChannel: IsolateChannel<Receive, Send>.create()..setPort(dataPort),
-      exceptionChannel:
-          IsolateChannel<ConnectionException, ConnectionException>.create()
-            ..setPort(exceptionPort),
-      serviceChannel:
-          IsolateChannel<IsolateServiceMessage, IsolateServiceMessage>.create()
-            ..setPort(servicePort),
-    );
-    await connection.initConnection();
-    // Workaround to save types between isolates:
-    entryPoint(connection, argument);
-    return connection;
+    try {
+      final connection = IsolateSlave<Receive, Send>(
+        dataChannel: IsolateChannel<Receive, Send>.create()..setPort(dataPort),
+        exceptionChannel:
+            IsolateChannel<ConnectionException, ConnectionException>.create()
+              ..setPort(exceptionPort),
+        serviceChannel: IsolateChannel<IsolateServiceMessage?,
+            IsolateServiceMessage?>.create()
+          ..setPort(servicePort),
+        errorsAreFatal: errorsAreFatal,
+      );
+      await connection.initConnection();
+      // Workaround to save types between isolates:
+      entryPoint(connection, argument);
+      return connection;
+    } on Object {
+      Isolate.current.kill();
+      rethrow;
+    }
   }
 } // IsolatePayload

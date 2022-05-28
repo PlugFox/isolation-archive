@@ -1,3 +1,4 @@
+@internal
 import 'dart:isolate';
 
 import 'package:meta/meta.dart';
@@ -16,6 +17,7 @@ abstract class IsolateServiceMessage {
     required T Function(HandshakeCompletedMessage message) handshakeCompleted,
     required T Function(PingMessage message) ping,
     required T Function(PongMessage message) pong,
+    required T Function(CloseMessage message) close,
   });
 
   /// Map specific service message
@@ -25,12 +27,14 @@ abstract class IsolateServiceMessage {
     T Function(HandshakeCompletedMessage message)? handshakeCompleted,
     T Function(PingMessage message)? ping,
     T Function(PongMessage message)? pong,
+    T Function(CloseMessage message)? close,
   }) =>
       map<T>(
         sendPort: sendPort ?? (_) => orElse(),
         handshakeCompleted: handshakeCompleted ?? (_) => orElse(),
         ping: ping ?? (_) => orElse(),
         pong: pong ?? (_) => orElse(),
+        close: close ?? (_) => orElse(),
       );
 }
 
@@ -60,8 +64,12 @@ class SendPortMessage extends IsolateServiceMessage {
     required T Function(HandshakeCompletedMessage message) handshakeCompleted,
     required T Function(PingMessage message) ping,
     required T Function(PongMessage message) pong,
+    required T Function(CloseMessage message) close,
   }) =>
       sendPort(this);
+
+  @override
+  String toString() => 'SendPortMessage';
 }
 
 /// {@template isolate_service_message.handshake_completed}
@@ -90,8 +98,12 @@ class HandshakeCompletedMessage extends IsolateServiceMessage {
     required T Function(HandshakeCompletedMessage message) handshakeCompleted,
     required T Function(PingMessage message) ping,
     required T Function(PongMessage message) pong,
+    required T Function(CloseMessage message) close,
   }) =>
       handshakeCompleted(this);
+
+  @override
+  String toString() => 'HandshakeCompletedMessage';
 }
 
 /// {@template isolate_service_message.ping}
@@ -110,8 +122,12 @@ class PingMessage extends IsolateServiceMessage {
     required T Function(HandshakeCompletedMessage message) handshakeCompleted,
     required T Function(PingMessage message) ping,
     required T Function(PongMessage message) pong,
+    required T Function(CloseMessage message) close,
   }) =>
       ping(this);
+
+  @override
+  String toString() => 'PingMessage';
 }
 
 /// {@template isolate_service_message.pong}
@@ -130,6 +146,31 @@ class PongMessage extends IsolateServiceMessage {
     required T Function(HandshakeCompletedMessage message) handshakeCompleted,
     required T Function(PingMessage message) ping,
     required T Function(PongMessage message) pong,
+    required T Function(CloseMessage message) close,
   }) =>
       pong(this);
+
+  @override
+  String toString() => 'PongMessage';
+}
+
+/// {@template isolate_service_message.close}
+/// Close message
+/// {@endtemplate}
+class CloseMessage extends IsolateServiceMessage {
+  /// {@macro isolate_service_message.close}
+  const CloseMessage();
+
+  @override
+  T map<T extends Object?>({
+    required T Function(SendPortMessage message) sendPort,
+    required T Function(HandshakeCompletedMessage message) handshakeCompleted,
+    required T Function(PingMessage message) ping,
+    required T Function(PongMessage message) pong,
+    required T Function(CloseMessage message) close,
+  }) =>
+      close(this);
+
+  @override
+  String toString() => 'CloseMessage';
 }
