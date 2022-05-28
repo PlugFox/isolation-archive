@@ -2,15 +2,16 @@ import 'dart:isolate';
 
 import 'package:meta/meta.dart';
 
-/// {@template isolate_channel.isolate_channel}
+/// {@template isolate_channel}
 /// Channel between two isolates.
 /// Used to send data, exception or service messages between isolates.
 /// {@endtemplate}
 @internal
-class IsolateChannel<Send extends Object?, Receive extends Object?>
-    extends Sink<Send> {
-  /// {@macro isolate_channel.isolate_channel}
-  IsolateChannel.create() : receivePort = ReceivePort();
+class IsolateChannel<In extends Object?, Out extends Object?> extends Sink<In> {
+  /// {@macro isolate_channel}
+  IsolateChannel([SendPort? sendPort])
+      : receivePort = ReceivePort(),
+        _sendPort = sendPort;
 
   /// Isolate channel receive port already closed;
   bool get isClosed => _isClosed;
@@ -25,8 +26,12 @@ class IsolateChannel<Send extends Object?, Receive extends Object?>
   /// Allow sending data to another isolate.
   SendPort? _sendPort;
 
+  /// Set new send port
+  // ignore: use_setters_to_change_properties
+  void setPort(SendPort sendPort) => _sendPort = sendPort;
+
   @override
-  void add(Send data) {
+  void add(In data) {
     assert(
       hasSendPort,
       'IsolateChannel is not connected to another isolate.',
@@ -34,12 +39,12 @@ class IsolateChannel<Send extends Object?, Receive extends Object?>
     _sendPort?.send(data);
   }
 
-  /// Set new send port
-  // ignore: use_setters_to_change_properties
-  void setPort(SendPort sendPort) => _sendPort = sendPort;
-
   @override
   void close() {
+    assert(
+      !isClosed,
+      'IsolateChannel is already closed.',
+    );
     if (isClosed) return;
     receivePort.close();
     _isClosed = true;

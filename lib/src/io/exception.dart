@@ -5,9 +5,9 @@ import 'package:meta/meta.dart';
 /// {@endtemplate}
 @internal
 @immutable
-class ConnectionException implements Exception {
+class IsolateException implements Exception {
   /// {@macro connection_exception}
-  ConnectionException(this.exception, [StackTrace? stackTrace])
+  IsolateException(this.exception, [StackTrace? stackTrace])
       : _stackTraceString = stackTrace?.toString();
 
   /// Exception
